@@ -1,0 +1,362 @@
+# Implementation Plan: Restaurant Reservation System - Next.js Frontend
+
+## Overview
+
+This implementation plan focuses on building the frontend UI for the restaurant reservation system using Next.js 14+ with TypeScript. All backend functionality will use mock data to allow rapid UI development and testing. The tasks are organized to build incrementally, focusing on components, pages, and user interactions.
+
+## Tasks
+
+- [x] 1. Project setup and configuration
+  - Initialize Next.js 14+ project with TypeScript and App Router
+  - Configure Tailwind CSS with custom color scheme (brown #5F361D, gold #FACF10, cream #F6EFBD)
+  - Set up ESLint and Prettier for code quality
+  - Install core dependencies: zod, date-fns
+  - Configure `next.config.js` for image optimization and static asset handling
+  - Create base directory structure: `app/`, `components/`, `lib/`, `types/`, `public/`
+  - _Requirements: 15.1, 15.2, 15.3, 15.7, 15.10_
+
+- [x] 2. Type definitions and mock data setup
+  - [x] 2.1 Define TypeScript interfaces for all data models
+    - Create `types/index.ts` with User, Reservation, Session, TableInfo, ReservationStatus interfaces
+    - Define Result<T> type for error handling pattern
+    - Define WaitlistCustomerData interface
+    - _Requirements: 15.3_
+  - [x] 2.2 Create mock data utilities
+    - Implement `lib/mockData.ts` with sample users, reservations, and tables
+    - Create mock functions that simulate async operations
+    - Add helper functions to generate realistic test data
+    - _Requirements: 15.3_
+
+- [x] 3. Validation utilities
+  - [x] 3.1 Create validation utility functions
+    - Implement `lib/validation.ts` with validateTimeFormat, validateOperatingHours, validatePasswordComplexity functions
+    - Add validateTimeRange function (departure after arrival)
+    - Add validateContactNumber function
+    - Add validateRequiredFields function
+    - Add loginSchema and registrationSchema for form validation
+    - Use Zod for schema validation
+    - _Requirements: 13.1, 13.2, 13.3, 13.4, 13.5_
+
+- [x] 4. Authentication UI (mock authentication)
+  - [x] 4.1 Create login page with form
+    - Implement `app/login/page.tsx` with login form (username, password fields)
+    - Implement password visibility toggle
+    - Add client-side validation using loginSchema
+    - Mock authentication that accepts any credentials
+    - Store mock session in localStorage or React Context
+    - Add redirect to dashboard after "login"
+    - _Requirements: 1.1, 1.2, 1.3, 1.8_
+  - [x] 4.2 Create registration page with form
+    - Implement `app/register/page.tsx` with registration form
+    - Add password complexity validation (8+ chars, uppercase, lowercase, number, special char)
+    - Add password confirmation matching validation
+    - Mock registration that stores user in localStorage
+    - Add redirect to login after successful registration
+    - _Requirements: 1.4, 1.5, 1.6, 1.7, 1.9_
+  - [x] 4.3 Create authentication context
+    - Implement `lib/AuthContext.tsx` with React Context
+    - Provide login, logout, and user state management
+    - Use localStorage to persist mock session
+    - _Requirements: 1.8, 1.10_
+
+- [x] 5. Dashboard layout and navigation
+  - [x] 5.1 Create dashboard layout with navigation
+    - Implement `app/dashboard/layout.tsx` with authentication check
+    - Add redirect to login if not authenticated
+    - Include sidebar and header components
+    - _Requirements: 2.1, 2.5_
+  - [x] 5.2 Create sidebar navigation component
+    - Implement `components/Sidebar.tsx` with navigation links
+    - Add navigation items: Dashboard, Tables, Reservations, Waitlist, Ongoing, History, Deleted, Profile
+    - Implement active route highlighting using usePathname
+    - Add sign-out button
+    - Style with Tailwind CSS matching brand colors
+    - _Requirements: 2.2, 2.3, 2.6_
+  - [x] 5.3 Create header component with real-time clock
+    - Implement `components/Header.tsx` with logo display
+    - Add real-time date and time display (client-side update using useEffect)
+    - Display logged-in user's first name from context
+    - _Requirements: 2.4, 2.5_
+  - [x] 5.4 Create dashboard home page
+    - Implement `app/dashboard/page.tsx` with welcome message
+    - Display quick stats using mock data (total reservations, occupied tables, etc.)
+    - Add summary cards with icons
+    - _Requirements: 2.1_
+
+- [x] 6. Reusable UI components
+  - [x] 6.1 Create Button component
+    - Implement `components/Button.tsx` with variants (primary, secondary, danger)
+    - Add size variants (sm, md, lg)
+    - Add loading state
+    - Style with Tailwind CSS
+    - _Requirements: 12.6_
+  - [x] 6.2 Create Input component
+    - Implement `components/Input.tsx` with label and error display
+    - Add support for different input types
+    - Add validation error styling
+    - _Requirements: 12.6, 13.6_
+  - [x] 6.3 Create Modal component
+    - Implement `components/Modal.tsx` for dialogs
+    - Add backdrop with click-outside-to-close
+    - Add close button
+    - Make it reusable with children prop
+    - _Requirements: 12.6_
+  - [x] 6.4 Create Toast notification component
+    - Implement `components/Toast.tsx` for notifications
+    - Add success, error, warning, info variants
+    - Add auto-dismiss functionality
+    - Create toast context for global usage
+    - _Requirements: 13.6, 13.7_
+
+- [x] 7. Table management and visualization
+  - [x] 7.1 Create mock table data utilities
+    - Add mock table data to `lib/mockData.ts`
+    - Create 15 tables with capacities (Table 1-2: 2 seats, Table 3-6: 4 seats, Table 7-11: 6 seats, Table 12-15: 8 seats)
+    - Add function to get table status based on mock reservations
+    - Simulate real-time updates with random status changes
+    - _Requirements: 3.1, 3.2, 3.3_
+  - [x] 7.2 Create tables page with floor plan layout
+    - Implement `app/dashboard/tables/page.tsx` as client component
+    - Fetch mock table data
+    - Render 15 table buttons in floor plan grid layout
+    - Display table number and capacity for each table
+    - Make layout responsive
+    - _Requirements: 3.1, 3.2, 3.3_
+  - [x] 7.3 Create table button component with status visualization
+    - Implement `components/TableButton.tsx` as client component
+    - Add visual states: available (green), occupied (red)
+    - Add hover effects
+    - Add click handler to open detail modal
+    - _Requirements: 3.4, 3.5, 3.6_
+  - [x] 7.4 Create table detail modal component
+    - Implement `components/TableDetailModal.tsx` with table status display
+    - For occupied tables: show customer name, arrival time, departure time
+    - For available tables: show availability message
+    - Add close button
+    - Style with brand colors
+    - _Requirements: 3.4, 3.6_
+  - [x] 7.5 Implement simulated real-time table status updates
+    - Add useEffect hook to poll mock data every 2 seconds
+    - Update table states automatically
+    - Show visual feedback when status changes
+    - _Requirements: 3.7, 10.1, 10.5_
+
+- [x] 8. Reservation management UI
+  - [x] 8.1 Create mock reservation data utilities
+    - Add mock reservation data to `lib/mockData.ts`
+    - Create functions to filter by status (Pending, Waiting, Arrived, Completed, Cancelled)
+    - Add search functionality by first name or last name
+    - Add function to update reservation status
+    - _Requirements: 4.1, 4.3_
+  - [x] 8.2 Create reservations page
+    - Implement `app/dashboard/reservations/page.tsx` as client component
+    - Fetch mock reservations with Status='Pending'
+    - Pass data to ReservationTable component
+    - _Requirements: 4.1_
+  - [x] 8.3 Create reservation table component
+    - Implement `components/ReservationTable.tsx` as client component
+    - Display columns: ID, First Name, Last Name, Date, Arrival Time, Departure Time, Table Number, Contact Number, Status
+    - Add search input with client-side filtering
+    - Add column sorting functionality
+    - Make table responsive (scroll on mobile)
+    - _Requirements: 4.2, 4.3, 4.9, 4.10_
+  - [x] 8.4 Create status dropdown component with validation
+    - Implement `components/StatusDropdown.tsx` with status options
+    - Add validation: Arrived only if current time >= arrival time AND date is today
+    - Add validation: Status changes only for today's reservations (except cancellations)
+    - Add confirmation dialog for cancellation
+    - Update mock data on status change
+    - Show toast notification on success
+    - _Requirements: 4.4, 4.5, 4.6, 4.7_
+  - [x] 8.5 Add delete functionality
+    - Add delete button to each reservation row
+    - Show confirmation modal before delete
+    - Move deleted reservation to mock backup data
+    - Show toast notification on success
+    - _Requirements: 4.8_
+
+- [x] 9. Waitlist management UI
+  - [x] 9.1 Create waitlist page
+    - Implement `app/dashboard/waitlist/page.tsx` as client component
+    - Fetch mock reservations with Status='Waiting'
+    - Add "Add Customer" button to open modal
+    - Pass data to WaitlistTable component
+    - _Requirements: 5.1, 5.2_
+  - [x] 9.2 Create waitlist table component
+    - Implement `components/WaitlistTable.tsx` similar to ReservationTable
+    - Add search functionality
+    - Add simulated real-time updates every 2 seconds
+    - _Requirements: 5.1, 5.11_
+  - [x] 9.3 Create add customer modal with form
+    - Implement `components/AddCustomerModal.tsx` with form fields
+    - Add fields: First Name, Last Name, Date (default: today), Arrival Time (auto: current time), Departure Time, Table Number, Contact Number
+    - Add form validation using validation utilities
+    - Add table selection dropdown with preview images
+    - _Requirements: 5.3, 5.4, 5.12_
+  - [x] 9.4 Create table preview carousel component
+    - Implement `components/TablePreviewCarousel.tsx` showing table images
+    - Display seating capacity for each table
+    - Show two views per table (different angles)
+    - Add navigation arrows
+    - _Requirements: 5.12_
+  - [x] 9.5 Implement mock table availability checking
+    - Add checkTableAvailability function to `lib/mockData.ts`
+    - Check for overlapping reservations using time range logic
+    - Return boolean indicating availability
+    - _Requirements: 5.9_
+  - [x] 9.6 Handle add customer form submission
+    - Check table availability before creating reservation
+    - If available: create reservation with Status='Arrived'
+    - If unavailable: create reservation with Status='Waiting'
+    - Validate time ranges and operating hours
+    - Add to mock data
+    - Show toast notification on success
+    - Close modal and refresh table
+    - _Requirements: 5.5, 5.6, 5.7, 5.8, 5.9, 5.10_
+
+- [x] 10. Ongoing reservations UI
+  - [x] 10.1 Create ongoing reservations page
+    - Implement `app/dashboard/ongoing/page.tsx` as client component
+    - Fetch mock reservations with Status='Arrived'
+    - Pass data to OngoingTable component
+    - _Requirements: 6.1_
+  - [x] 10.2 Create ongoing table component
+    - Implement `components/OngoingTable.tsx` similar to ReservationTable
+    - Allow status changes via dropdown
+    - Add simulated real-time updates every 2 seconds
+    - Add search functionality
+    - _Requirements: 6.2, 6.4, 6.5_
+  - [x] 10.3 Implement automatic status update simulation
+    - Add useEffect hook to check departure times
+    - Automatically update Status to 'Completed' when departure time passes
+    - Show toast notification when status auto-updates
+    - _Requirements: 6.3, 10.2, 10.3, 10.4_
+
+- [x] 11. Customer history UI
+  - [x] 11.1 Create customer history page
+    - Implement `app/dashboard/history/page.tsx` as client component
+    - Fetch mock reservations with Status='Completed'
+    - Pass data to HistoryTable component
+    - _Requirements: 7.1_
+  - [x] 11.2 Create history table component
+    - Implement `components/HistoryTable.tsx` as read-only table
+    - Add search functionality
+    - Add column sorting
+    - Display all reservation columns
+    - Make responsive
+    - _Requirements: 7.2, 7.3, 7.4_
+
+- [ ] 12. Deleted reservations UI
+  - [ ] 12.1 Create deleted reservations page
+    - Implement `app/dashboard/deleted/page.tsx` as client component
+    - Fetch records from mock backup data
+    - Add restore button for each record
+    - Pass data to DeletedTable component
+    - _Requirements: 8.1_
+  - [ ] 12.2 Create deleted table component
+    - Implement `components/DeletedTable.tsx` with restore functionality
+    - Add search functionality
+    - Display all reservation columns
+    - _Requirements: 8.1, 8.6_
+  - [ ] 12.3 Implement restore functionality
+    - Validate Status='Pending' before restore
+    - Move record from mock backup to active reservations
+    - Remove from backup data
+    - Show error toast if status is not Pending
+    - Show success toast on successful restore
+    - _Requirements: 8.2, 8.3, 8.4, 8.5, 8.7_
+
+- [x] 13. User profile UI
+  - [x] 13.1 Create user profile page
+    - Implement `app/dashboard/profile/page.tsx` as client component
+    - Fetch user data from auth context
+    - Display First Name, Last Name, Username, Role (System Administrator)
+    - Mask password display for security
+    - Display current date and time
+    - Style with brand colors
+    - _Requirements: 9.1, 9.2, 9.3, 9.4_
+
+- [x] 14. Asset migration and styling
+  - [x] 14.1 Migrate image assets to public directory
+    - Copy table preview images from `src/pictures/` to `public/tables/`
+    - Copy icons from `src/ICON/` to `public/icons/`
+    - Copy logo and branding assets to `public/branding/`
+    - Optimize images for web delivery
+    - _Requirements: 12.3, 12.4, 12.5_
+  - [x] 14.2 Implement responsive layout and styling
+    - Create Tailwind CSS custom theme with brand colors
+    - Implement responsive grid layouts for table floor plan
+    - Add responsive breakpoints for mobile, tablet, desktop
+    - Style all forms with consistent design
+    - Add hover and focus states for interactive elements
+    - _Requirements: 12.1, 12.2, 12.6_
+  - [x] 14.3 Polish UI with animations and transitions
+    - Add smooth transitions for modals
+    - Add loading states for async operations
+    - Add skeleton loaders for data fetching
+    - Add fade-in animations for page transitions
+    - _Requirements: 12.6_
+
+- [x] 15. Form validation and error handling
+  - [x] 15.1 Add inline validation to all forms
+    - Add validation error display to login form
+    - Add validation error display to registration form
+    - Add validation error display to add customer form
+    - Display errors near relevant form fields
+    - Clear errors when fields are corrected
+    - _Requirements: 13.1, 13.2, 13.3, 13.4, 13.5, 13.6, 13.7_
+  - [x] 15.2 Implement user-friendly error messages
+    - Add error message mapping for authentication errors
+    - Add error message mapping for validation errors
+    - Add error message mapping for business logic errors
+    - Display errors using toast notifications
+    - _Requirements: 13.6_
+
+- [ ] 16. Data export functionality
+  - [ ] 16.1 Create CSV export utility
+    - Implement `lib/export.ts` with exportToCSV function
+    - Accept table data and column definitions
+    - Generate CSV format with headers
+    - Add timestamp to filename
+    - Trigger browser download
+    - _Requirements: 14.1, 14.2, 14.4_
+  - [ ] 16.2 Add export buttons to table components
+    - Add export button to ReservationTable
+    - Add export button to WaitlistTable
+    - Add export button to OngoingTable
+    - Add export button to HistoryTable
+    - Export includes visible columns and filtered rows
+    - Show toast notification on export
+    - _Requirements: 14.1, 14.3_
+
+- [ ] 17. Final polish and testing
+  - [ ] 17.1 Cross-browser testing
+    - Test on Chrome, Firefox, Safari, Edge
+    - Fix any browser-specific issues
+    - Ensure consistent styling across browsers
+  - [ ] 17.2 Responsive design testing
+    - Test on mobile devices (320px, 375px, 414px)
+    - Test on tablets (768px, 1024px)
+    - Test on desktop (1280px, 1920px)
+    - Fix any layout issues
+  - [ ] 17.3 Accessibility improvements
+    - Add proper ARIA labels
+    - Ensure keyboard navigation works
+    - Test with screen readers
+    - Add focus indicators
+  - [ ] 17.4 Performance optimization
+    - Optimize images
+    - Add lazy loading for images
+    - Minimize bundle size
+    - Add loading states
+
+## Notes
+
+- All backend functionality uses mock data stored in `lib/mockData.ts`
+- Mock data persists in localStorage for session continuity
+- Real-time updates are simulated using setInterval/useEffect hooks
+- Focus is on UI/UX, component architecture, and responsive design
+- Each task builds incrementally on previous tasks
+- Checkpoints removed as no backend integration is required
+- TypeScript provides compile-time type safety throughout the application
+- The implementation follows Next.js 14+ App Router best practices with Client Components for interactivity
